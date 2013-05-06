@@ -17,7 +17,7 @@ object Show {
   }
   implicit val stringShow = showA[String]
   implicit val intShow = showA[Int]
-  implicit val bigDecimalShow = showA[BigDecimal]
+  implicit val bigIntShow = showA[BigInt]
   implicit val booleanShow = showA[Boolean]
   private val yyyyMmDd = new SimpleDateFormat("yyyy-MM-dd")
   implicit val calendarShow: Show[Calendar] = new Show[Calendar] {
@@ -26,29 +26,37 @@ object Show {
 }
 
 // https://api.twitter.com/1.1/search/tweets.json
-case class Search(params: Map[String, String]) extends Method {
+case class Search(params: Map[String, String]) extends Method with Param[Search] {
   def complete = _ / "search" / "tweets.json" <<? params
+
   def param[A: Show](key: String)(value: A): Search =
     copy(params = params + (key -> implicitly[Show[A]].shows(value)))
-  private def geocode0(unit: String)(lat: Double, lon: Double, r: Double) =
+  private def geocode0(unit: String) = (lat: Double, lon: Double, r: Double) =>
     param[String]("geocode")(List(lat, lon, r).mkString(",") + unit)
-  val geocode_mi = geocode0("mi")_
-  val geocode = geocode0("km")_
-  val lang = param[String]("lang")_
-  val locale = param[String]("locale")_
+  val geocode_mi = geocode0("mi")
+  val geocode  = geocode0("km")
+  val lang     = 'lang[String]
+  val locale   = 'locale[String]
   /**  mixed, recent, popular */
-  val result_type = param[String]("result_type")_
-  val count = param[Int]("count")_
-  val until = param[Calendar]("until")_
-  val since_id = param[BigDecimal]("since_id")_
-  val max_id = param[BigDecimal]("max_id")_
-  val include_entities = param[Boolean]("include_entities")_
-  val callback = param[String]("callback")_
+  val result_type = 'result_type[String]
+  val count    = 'count[Int]
+  val until    = 'until[Calendar]
+  val since_id = 'since_id[BigInt]
+  val max_id   = 'max_id[BigInt]
+  val include_entities = 'include_entities[Boolean]
+  val callback = 'callback[String]
 }
 case object Search {
   def apply(q: String): Search = Search(Map("q" -> q))
 }
 
+trait Param[R] {
+  val params: Map[String, String]
+  def param[A: Show](key: String)(value: A): R
+  implicit class SymOp(sym: Symbol) {
+    def apply[A: Show]: A => R = param(sym.name)_
+  }
+}
 trait Method extends (Req => Req) {
   def complete: Req => Req
   def apply(req: Req): Req = complete(req)
