@@ -41,7 +41,7 @@ object Tweet extends Parse {
 
 trait Parse {
   def parse[A: Read](key: String)(js: JValue): Option[A] =
-    implicitly[Read[A]].readJs(js \ key)
+    implicitly[Read[A]].readJs.lift(js \ key)
   def parse_![A: Read](key: String)(js: JValue): A = parse(key)(js).get
   implicit class SymOp(sym: Symbol) {
     def apply[A: Read]: JValue => Option[A] = parse[A](sym.name)_
@@ -49,43 +49,18 @@ trait Parse {
   }
 }
 trait Read[A] {
-  def readJs(js: JValue): Option[A]
+  import Read.=>?
+  val readJs: JValue =>? A
 }
 object Read {
-  implicit val listRead: Read[List[JValue]] = new Read[List[JValue]] {
-    def readJs(js: JValue) = js match {
-      case JArray(v) => Some(v)
-      case _         => None
-    }
+  type =>?[-A, +B] = PartialFunction[A, B]
+  def readJs[A](pf: JValue =>? A): Read[A] = new Read[A] {
+    val readJs = pf
   }
-  implicit val objectRead: Read[JObject] = new Read[JObject] {
-    def readJs(js: JValue) = js match {
-      case JObject(v) => Some(JObject(v))
-      case _          => None
-    }
-  }
-  implicit val bigIntRead: Read[BigInt] = new Read[BigInt] {
-    def readJs(js: JValue) = js match {
-      case JInt(v) => Some(v)
-      case _       => None
-    }
-  }
-  implicit val intRead: Read[Int] = new Read[Int] {
-    def readJs(js: JValue) = js match {
-      case JInt(v) => Some(v.toInt)
-      case _       => None
-    }
-  }
-  implicit val stringRead: Read[String] = new Read[String] {
-    def readJs(js: JValue) = js match {
-      case JString(v) => Some(v)
-      case _          => None
-    }
-  }
-  implicit val boolRead: Read[Boolean] = new Read[Boolean] {
-    def readJs(js: JValue) = js match {
-      case JBool(v) => Some(v)
-      case _        => None
-    }
-  }
+  implicit val listRead: Read[List[JValue]] = readJs { case JArray(v) => v }
+  implicit val objectRead: Read[JObject]    = readJs { case JObject(v) => JObject(v) }
+  implicit val bigIntRead: Read[BigInt]     = readJs { case JInt(v) => v }
+  implicit val intRead: Read[Int]           = readJs { case JInt(v) => v.toInt }
+  implicit val stringRead: Read[String]     = readJs { case JString(v) => v }
+  implicit val boolRead: Read[Boolean]      = readJs { case JBool(v) => v }
 }
