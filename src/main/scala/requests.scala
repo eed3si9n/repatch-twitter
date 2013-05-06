@@ -4,11 +4,46 @@ import dispatch._
 import org.json4s._
 import oauth._
 import com.ning.http.client.oauth._
+import java.util.Calendar
+import java.text.SimpleDateFormat
+
+trait Show[A] {
+  def shows(a: A): String
+}
+object Show {
+  def showA[A]: Show[A] = new ShowA[A] {} 
+  trait ShowA[A] extends Show[A] {
+    def shows(a: A): String = a.toString 
+  }
+  implicit val stringShow = showA[String]
+  implicit val intShow = showA[Int]
+  implicit val bigDecimalShow = showA[BigDecimal]
+  implicit val booleanShow = showA[Boolean]
+  private val yyyyMmDd = new SimpleDateFormat("yyyy-MM-dd")
+  implicit val calendarShow: Show[Calendar] = new Show[Calendar] {
+    def shows(a: Calendar): String = yyyyMmDd.format(a.getTime)
+  }
+}
 
 // https://api.twitter.com/1.1/search/tweets.json
 case class Search(params: Map[String, String]) extends Method {
-  def param(key: String, value: String): Search = copy(params = params + (key -> value))
   def complete = _ / "search" / "tweets.json" <<? params
+  def param[A: Show](key: String)(value: A): Search =
+    copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  private def geocode0(unit: String)(lat: Double, lon: Double, r: Double) =
+    param[String]("geocode")(List(lat, lon, r).mkString(",") + unit)
+  val geocode_mi = geocode0("mi")_
+  val geocode = geocode0("km")_
+  val lang = param[String]("lang")_
+  val locale = param[String]("locale")_
+  /**  mixed, recent, popular */
+  val result_type = param[String]("result_type")_
+  val count = param[Int]("count")_
+  val until = param[Calendar]("until")_
+  val since_id = param[BigDecimal]("since_id")_
+  val max_id = param[BigDecimal]("max_id")_
+  val include_entities = param[Boolean]("include_entities")_
+  val callback = param[String]("callback")_
 }
 case object Search {
   def apply(q: String): Search = Search(Map("q" -> q))
