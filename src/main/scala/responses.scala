@@ -5,11 +5,6 @@ import org.json4s._
 import java.util.{GregorianCalendar, Calendar, Locale}
 import java.text.SimpleDateFormat
 
-object Statuses extends Parse {
-  def apply(js: JValue): List[Tweet] =
-    parse_![List[JValue]](js) map { x => Tweet(x) }
-}
-
 case class Search(
   statuses: List[Tweet],
   search_metadata: JObject
@@ -92,6 +87,11 @@ object Tweet extends Parse with CommonField {
     in_reply_to_status_id = in_reply_to_status_id(js),
     in_reply_to_user_id = in_reply_to_user_id(js)   
   )
+}
+
+object Tweets extends Parse {
+  def apply(js: JValue): List[Tweet] =
+    parse_![List[JValue]](js) map { x => Tweet(x) }
 }
 
 case class User(
