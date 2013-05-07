@@ -18,6 +18,7 @@ object Show {
   implicit val intShow     = showA[Int]
   implicit val bigIntShow  = showA[BigInt]
   implicit val booleanShow = showA[Boolean]
+  implicit val doubleShow  = showA[Double]
   private val yyyyMmDd = new SimpleDateFormat("yyyy-MM-dd")
   implicit val calendarShow: Show[Calendar] = new Show[Calendar] {
     def shows(a: Calendar): String = yyyyMmDd.format(a.getTime)
@@ -48,22 +49,37 @@ object Search {
 }
 
 object Status {
+  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline.
+   * Wraps https://api.twitter.com/1.1/statuses/home_timeline.json
+   */ 
   def home_timeline: HomeTimeline = HomeTimeline()
-}
+  case class HomeTimeline(params: Map[String, String] = Map()) extends Method
+      with Param[HomeTimeline] with CommonParam[HomeTimeline] {
+    def complete = _ / "statuses" / "home_timeline.json" <<? params
 
-/** See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline.
- * Wraps https://api.twitter.com/1.1/statuses/home_timeline.json
- */ 
-case class HomeTimeline(params: Map[String, String] = Map()) extends Method
-    with Param[HomeTimeline] with CommonParam[HomeTimeline] {
-  def complete = _ / "statuses" / "home_timeline.json"
+    def param[A: Show](key: String)(value: A): HomeTimeline =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+    val trim_user       = 'trim_user[Boolean]
+    val exclude_replies = 'exclude_replies[Boolean]
+    val contributor_details = 'contributor_details[Boolean]
+    val include_entities = 'include_entities[Boolean]
+  }
 
-  def param[A: Show](key: String)(value: A): HomeTimeline =
-    copy(params = params + (key -> implicitly[Show[A]].shows(value)))
-  val trim_user       = 'trim_user[Boolean]
-  val exclude_replies = 'exclude_replies[Boolean]
-  val contributor_details = 'contributor_details[Boolean]
-  val include_entities = 'include_entities[Boolean]
+  /** See https://dev.twitter.com/docs/api/1.1/post/statuses/update
+   */
+  def update(status: String): Update = Update(Map("status" -> status))
+  case class Update(params: Map[String, String]) extends Method with Param[Update] {
+    def complete = _ / "statuses" / "update.json" << params
+
+    def param[A: Show](key: String)(value: A): Update =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+    val in_reply_to_status_id = 'in_reply_to_status_id[BigInt]
+    val lat             = 'lat[Double]
+    val `long`          = 'long[Double]
+    val place_id        = 'place_id[String]
+    val display_coordinates = 'display_coordinates[Boolean]
+    val trim_user       = 'trim_user[Boolean]
+  }
 }
 
 trait CommonParam[R] { self: Param[R] =>
