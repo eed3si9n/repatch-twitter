@@ -2,17 +2,50 @@ package repatch.twitter.response
 
 import dispatch._
 import org.json4s._
+import java.util.{GregorianCalendar, Calendar, Locale}
+import java.text.SimpleDateFormat
 
+case class Search(
+  statuses: List[Tweet],
+  search_metadata: JObject
+)
+
+/** https://dev.twitter.com/docs/api/1.1/get/search/tweets
+ */
 object Search extends Parse {
-  val statuses       = 'statuses.![List[JValue]]
+  val statuses        = 'statuses.![List[JValue]]
+  val search_metadata = 'search_metadata.![JObject]
+
+  def apply(js: JValue): Search = Search(
+    statuses = statuses(js) map { x => Tweet(x) },
+    search_metadata = search_metadata(js)
+  )
 }
+
+case class Tweet(
+  id: BigInt,
+  text: String,
+  created_at: Calendar,
+  user: JObject,
+  favorite_count: Option[Int],
+  favorited: Option[Boolean],
+  retweet_count: Int,
+  retweeted: Boolean,
+  truncated: Boolean,
+  source: String,
+  lang: Option[String],
+  coordinates: Option[JObject],
+  entities: JObject,
+  in_reply_to_status_id: Option[BigInt],
+  in_reply_to_user_id: Option[BigInt]
+)
 
 /** https://dev.twitter.com/docs/platform-objects/tweets 
  */
 object Tweet extends Parse {
   val contributors   = 'contributors[List[JValue]]
   val coordinates    = 'coordinates[JObject]
-  val created_at     = 'created_at.![String]
+  val created_at     = 'created_at.![Calendar]
   val current_user_retweet = 'current_user_retweet[JObject]
   val entities       = 'entities.![JObject]
   val favorite_count = 'favorite_count[Int]
@@ -28,7 +61,8 @@ object Tweet extends Parse {
   val lang           = 'lang[String]
   val place          = 'place[JObject]
   val possibly_sensitive = 'possibly_sensitive[Boolean]
-  val scope          = 'scope.![JObject]
+  val scopes         = 'scopes[JObject]
+  val source         = 'source.![String]
   val retweet_count  = 'retweet_count.![Int]
   val retweeted      = 'retweeted.![Boolean]
   val text           = 'text.![String]
@@ -37,6 +71,24 @@ object Tweet extends Parse {
   val withheld_copyright    = 'withheld_copyright[Boolean]
   val withheld_in_countries = 'withheld_in_countries[List[JValue]]
   val withheld_scope        = 'withheld_scope[String]
+
+  def apply(js: JValue): Tweet = Tweet(
+    id = id(js),
+    text = text(js),
+    created_at = created_at(js),
+    user = user(js),
+    favorite_count = favorite_count(js),
+    favorited = favorited(js),
+    retweet_count = retweet_count(js),
+    retweeted = retweeted(js),
+    truncated = truncated(js),
+    source = source(js),
+    lang = lang(js),
+    coordinates = coordinates(js),
+    entities = entities(js),
+    in_reply_to_status_id = in_reply_to_status_id(js),
+    in_reply_to_user_id = in_reply_to_user_id(js)   
+  )
 }
 
 trait Parse {
@@ -63,4 +115,13 @@ object ReadJs {
   implicit val intRead: ReadJs[Int]           = readJs { case JInt(v) => v.toInt }
   implicit val stringRead: ReadJs[String]     = readJs { case JString(v) => v }
   implicit val boolRead: ReadJs[Boolean]      = readJs { case JBool(v) => v }
+  private val twitterFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy", Locale.ENGLISH)
+  twitterFormat.setLenient(true)
+  implicit val calendarRead: ReadJs[Calendar] =
+    readJs { case JString(v) =>
+      val date = twitterFormat.parse(v)
+      val c = new GregorianCalendar
+      c.setTime(date)
+      c
+    }
 }
