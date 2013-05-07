@@ -25,28 +25,51 @@ object Show {
 }
 
 // https://api.twitter.com/1.1/search/tweets.json
-case class Search(params: Map[String, String]) extends Method with Param[Search] {
+case class Search(params: Map[String, String]) extends Method
+    with Param[Search] with CommonParam[Search] {
   def complete = _ / "search" / "tweets.json" <<? params
 
   def param[A: Show](key: String)(value: A): Search =
     copy(params = params + (key -> implicitly[Show[A]].shows(value)))
   private def geocode0(unit: String) = (lat: Double, lon: Double, r: Double) =>
     param[String]("geocode")(List(lat, lon, r).mkString(",") + unit)
-  val geocode_mi = geocode0("mi")
-  val geocode  = geocode0("km")
-  val lang     = 'lang[String]
-  val locale   = 'locale[String]
+  val geocode_mi      = geocode0("mi")
+  val geocode         = geocode0("km")
+  val lang            = 'lang[String]
+  val locale          = 'locale[String]
   /**  mixed, recent, popular */
-  val result_type = 'result_type[String]
-  val count    = 'count[Int]
-  val until    = 'until[Calendar]
-  val since_id = 'since_id[BigInt]
-  val max_id   = 'max_id[BigInt]
+  val result_type     = 'result_type[String]
+  val until           = 'until[Calendar]
   val include_entities = 'include_entities[Boolean]
-  val callback = 'callback[String]
+  val callback        = 'callback[String]
 }
-case object Search {
+object Search {
   def apply(q: String): Search = Search(Map("q" -> q))
+}
+
+object Status {
+  def home_timeline: HomeTimeline = HomeTimeline()
+}
+
+/** See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline.
+ * Wraps https://api.twitter.com/1.1/statuses/home_timeline.json
+ */ 
+case class HomeTimeline(params: Map[String, String] = Map()) extends Method
+    with Param[HomeTimeline] with CommonParam[HomeTimeline] {
+  def complete = _ / "statuses" / "home_timeline.json"
+
+  def param[A: Show](key: String)(value: A): HomeTimeline =
+    copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  val trim_user       = 'trim_user[Boolean]
+  val exclude_replies = 'exclude_replies[Boolean]
+  val contributor_details = 'contributor_details[Boolean]
+  val include_entities = 'include_entities[Boolean]
+}
+
+trait CommonParam[R] { self: Param[R] =>
+  val count           = 'count[Int]
+  val since_id        = 'since_id[BigInt]
+  val max_id          = 'max_id[BigInt]
 }
 
 trait Param[R] {

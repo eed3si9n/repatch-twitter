@@ -5,6 +5,11 @@ import org.json4s._
 import java.util.{GregorianCalendar, Calendar, Locale}
 import java.text.SimpleDateFormat
 
+object Statuses extends Parse {
+  def apply(js: JValue): List[Tweet] =
+    parse_![List[JValue]](js) map { x => Tweet(x) }
+}
+
 case class Search(
   statuses: List[Tweet],
   search_metadata: JObject
@@ -20,6 +25,12 @@ object Search extends Parse {
     statuses = statuses(js) map { x => Tweet(x) },
     search_metadata = search_metadata(js)
   )
+}
+
+object MetaData extends Parse {
+  val max_id          = 'max_id.![BigInt]
+  val since_id        = 'since_id.![BigInt]
+  val count           = 'count.![Int]
 }
 
 case class Tweet(
@@ -181,12 +192,14 @@ trait CommonField { self: Parse =>
 }
 
 trait Parse {
-  def parse[A: ReadJs](key: String)(js: JValue): Option[A] =
-    implicitly[ReadJs[A]].readJs.lift(js \ key)
-  def parse_![A: ReadJs](key: String)(js: JValue): A = parse(key)(js).get
+  def parse[A: ReadJs](js: JValue): Option[A] =
+    implicitly[ReadJs[A]].readJs.lift(js)
+  def parse_![A: ReadJs](js: JValue): A = parse(js).get
+  def parseField[A: ReadJs](key: String)(js: JValue): Option[A] = parse[A](js \ key)
+  def parseField_![A: ReadJs](key: String)(js: JValue): A = parseField(key)(js).get
   implicit class SymOp(sym: Symbol) {
-    def apply[A: ReadJs]: JValue => Option[A] = parse[A](sym.name)_
-    def ![A: ReadJs]: JValue => A = parse_![A](sym.name)_
+    def apply[A: ReadJs]: JValue => Option[A] = parseField[A](sym.name)_
+    def ![A: ReadJs]: JValue => A = parseField_![A](sym.name)_
   }
 }
 trait ReadJs[A] {

@@ -6,4 +6,5 @@ package object response {
   import dispatch.as.json4s.Json
 
   val Search: Response => response.Search = Json andThen response.Search.apply
+  val Statuses: Response => List[response.Tweet] = Json andThen response.Statuses.apply
 }
