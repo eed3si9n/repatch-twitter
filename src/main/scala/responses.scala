@@ -40,27 +40,27 @@ object Tweet extends Parse {
 }
 
 trait Parse {
-  def parse[A: Read](key: String)(js: JValue): Option[A] =
-    implicitly[Read[A]].readJs.lift(js \ key)
-  def parse_![A: Read](key: String)(js: JValue): A = parse(key)(js).get
+  def parse[A: ReadJs](key: String)(js: JValue): Option[A] =
+    implicitly[ReadJs[A]].readJs.lift(js \ key)
+  def parse_![A: ReadJs](key: String)(js: JValue): A = parse(key)(js).get
   implicit class SymOp(sym: Symbol) {
-    def apply[A: Read]: JValue => Option[A] = parse[A](sym.name)_
-    def ![A: Read]: JValue => A = parse_![A](sym.name)_
+    def apply[A: ReadJs]: JValue => Option[A] = parse[A](sym.name)_
+    def ![A: ReadJs]: JValue => A = parse_![A](sym.name)_
   }
 }
-trait Read[A] {
-  import Read.=>?
+trait ReadJs[A] {
+  import ReadJs.=>?
   val readJs: JValue =>? A
 }
-object Read {
+object ReadJs {
   type =>?[-A, +B] = PartialFunction[A, B]
-  def readJs[A](pf: JValue =>? A): Read[A] = new Read[A] {
+  def readJs[A](pf: JValue =>? A): ReadJs[A] = new ReadJs[A] {
     val readJs = pf
   }
-  implicit val listRead: Read[List[JValue]] = readJs { case JArray(v) => v }
-  implicit val objectRead: Read[JObject]    = readJs { case JObject(v) => JObject(v) }
-  implicit val bigIntRead: Read[BigInt]     = readJs { case JInt(v) => v }
-  implicit val intRead: Read[Int]           = readJs { case JInt(v) => v.toInt }
-  implicit val stringRead: Read[String]     = readJs { case JString(v) => v }
-  implicit val boolRead: Read[Boolean]      = readJs { case JBool(v) => v }
+  implicit val listRead: ReadJs[List[JValue]] = readJs { case JArray(v) => v }
+  implicit val objectRead: ReadJs[JObject]    = readJs { case JObject(v) => JObject(v) }
+  implicit val bigIntRead: ReadJs[BigInt]     = readJs { case JInt(v) => v }
+  implicit val intRead: ReadJs[Int]           = readJs { case JInt(v) => v.toInt }
+  implicit val stringRead: ReadJs[String]     = readJs { case JString(v) => v }
+  implicit val boolRead: ReadJs[Boolean]      = readJs { case JBool(v) => v }
 }

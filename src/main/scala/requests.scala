@@ -11,13 +11,12 @@ trait Show[A] {
   def shows(a: A): String
 }
 object Show {
-  def showA[A]: Show[A] = new ShowA[A] {} 
-  trait ShowA[A] extends Show[A] {
+  def showA[A]: Show[A] = new Show[A] {
     def shows(a: A): String = a.toString 
   }
-  implicit val stringShow = showA[String]
-  implicit val intShow = showA[Int]
-  implicit val bigIntShow = showA[BigInt]
+  implicit val stringShow  = showA[String]
+  implicit val intShow     = showA[Int]
+  implicit val bigIntShow  = showA[BigInt]
   implicit val booleanShow = showA[Boolean]
   private val yyyyMmDd = new SimpleDateFormat("yyyy-MM-dd")
   implicit val calendarShow: Show[Calendar] = new Show[Calendar] {
