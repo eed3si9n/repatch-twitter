@@ -149,3 +149,17 @@ x: dispatch.Future[repatch.twitter.response.Tweet = scala.concurrent.impl.Promis
 ```
 
 To reply to a tweet, call `in_reply_to_status_id(id)` method on `Status.Update` class.
+
+### [GET statuses/retweets/:id](https://dev.twitter.com/docs/api/1.1/get/statuses/retweets/%3Aid)
+
+> Returns up to 100 of the first retweets of a given tweet.
+
+```scala
+scala> val rts = http(client(Status.retweets(BigInt("317744323254943744"))) OK as.repatch.twitter.response.Tweets)
+rts: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@98fd639
+
+scala> rts()
+res4: List[repatch.twitter.response.Tweet] = 
+List(Tweet(317776021933916160,RT @eed3si9n: scala&gt; :k Monad // Finds locally imported types.
+```
+
