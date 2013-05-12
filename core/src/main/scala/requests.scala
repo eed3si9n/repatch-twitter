@@ -47,8 +47,7 @@ object Search {
 }
 
 object Status {
-  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/mentions_timeline.
-   * Wraps https://api.twitter.com/1.1/statuses/mentions_timeline.json.
+  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/mentions_timeline
    */
   def mentions_timeline: MentionsTimeline = MentionsTimeline()
   case class MentionsTimeline(params: Map[String, String] = Map()) extends Method
@@ -58,8 +57,7 @@ object Status {
       copy(params = params + (key -> implicitly[Show[A]].shows(value)))
   }
 
-  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline.
-   * Wraps https://api.twitter.com/1.1/statuses/home_timeline.json
+  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline
    */ 
   def home_timeline: HomeTimeline = HomeTimeline()
   case class HomeTimeline(params: Map[String, String] = Map()) extends Method
@@ -69,6 +67,18 @@ object Status {
       copy(params = params + (key -> implicitly[Show[A]].shows(value)))
   }
 
+  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline
+   */
+  def user_timeline(user_id: BigInt): UserTimeline = UserTimeline(Map("user_id" -> user_id.toString))
+  def user_timeline(screen_name: String): UserTimeline = UserTimeline(Map("screen_name" -> screen_name))
+  case class UserTimeline(params: Map[String, String]) extends Method
+      with Param[UserTimeline] with TimelineParam[UserTimeline] {
+    def complete = _ / "statuses" / "user_timeline.json" <<? params
+    def param[A: Show](key: String)(value: A): UserTimeline =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+    val include_rts      = 'include_rts[Boolean]
+  }
+  
   /** See https://dev.twitter.com/docs/api/1.1/post/statuses/update
    */
   def update(status: String): Update = Update(Map("status" -> status))

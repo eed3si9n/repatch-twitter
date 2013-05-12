@@ -113,6 +113,19 @@ res0: List[repatch.twitter.response.Tweet] =
 List(Tweet(333386163618455553,@eed3si9n I keep seeing pros and cons...
 ```
 
+### [GET statuses/user_timeline](https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline)
+
+> Returns a collection of the most recent Tweets posted by the user indicated by the `screen_name` or `user_id` parameters.
+
+```scala
+scala> val timeline = http(client(Status.user_timeline("twitterapi")) OK as.repatch.twitter.response.Tweets)
+timeline: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@40878d74
+
+scala> timeline()
+res0: List[repatch.twitter.response.Tweet] = 
+List(Tweet(330369772619452416,We're extending API v1 Retirement...
+```
+
 tweets
 ------
 
