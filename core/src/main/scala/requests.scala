@@ -78,7 +78,18 @@ object Status {
       copy(params = params + (key -> implicitly[Show[A]].shows(value)))
     val include_rts      = 'include_rts[Boolean]
   }
-  
+
+  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/retweets_of_me
+   */
+  def retweets_of_me: RetweetsOfMeTimeline = RetweetsOfMeTimeline()
+  case class RetweetsOfMeTimeline(params: Map[String, String] = Map()) extends Method
+      with Param[RetweetsOfMeTimeline] with TimelineParam[RetweetsOfMeTimeline] {
+    def complete = _ / "statuses" / "retweets_of_me.json" <<? params
+    def param[A: Show](key: String)(value: A): RetweetsOfMeTimeline =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+    val include_user_entities = 'include_user_entities[Boolean]
+  }  
+
   /** See https://dev.twitter.com/docs/api/1.1/post/statuses/update
    */
   def update(status: String): Update = Update(Map("status" -> status))

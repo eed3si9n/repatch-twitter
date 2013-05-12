@@ -126,6 +126,15 @@ res0: List[repatch.twitter.response.Tweet] =
 List(Tweet(330369772619452416,We're extending API v1 Retirement...
 ```
 
+### [GET statuses/retweets_of_me](https://dev.twitter.com/docs/api/1.1/get/statuses/retweets_of_me)
+
+> Returns the most recent tweets authored by the authenticating user that have been retweeted by others.
+
+```scala
+scala> val timeline = http(client(Status.retweets_of_me) OK as.repatch.twitter.response.Tweets)
+timeline: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@14128779
+```
+
 tweets
 ------
 
