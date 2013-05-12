@@ -155,7 +155,8 @@ To reply to a tweet, call `in_reply_to_status_id(id)` method on `Status.Update` 
 > Returns up to 100 of the first retweets of a given tweet.
 
 ```scala
-scala> val rts = http(client(Status.retweets(BigInt("317744323254943744"))) OK as.repatch.twitter.response.Tweets)
+scala> val rts = http(client(Status.retweets(BigInt("317744323254943744"))) OK
+         as.repatch.twitter.response.Tweets)
 rts: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@98fd639
 
 scala> rts()
@@ -163,3 +164,31 @@ res4: List[repatch.twitter.response.Tweet] =
 List(Tweet(317776021933916160,RT @eed3si9n: scala&gt; :k Monad // Finds locally imported types.
 ```
 
+### [GET statuses/show/:id](https://dev.twitter.com/docs/api/1.1/get/statuses/show/%3Aid)
+
+> Returns a single Tweet, specified by the id parameter.
+
+```scala
+scala> val x = http(client(Status.show(BigInt("317744323254943744"))) OK
+         as.repatch.twitter.response.Tweet)
+x: dispatch.Future[repatch.twitter.response.Tweet] = scala.concurrent.impl.Promise$DefaultPromise@4c603a77
+
+scala> x()
+res2: repatch.twitter.response.Tweet = 
+Tweet(317744323254943744,scala&gt; :k Monad // Finds locally imported types
+```
+
+### [POST statuses/destroy/:id](https://dev.twitter.com/docs/api/1.1/post/statuses/destroy/%3Aid)
+
+> Destroys the status specified by the required ID parameter.
+
+```scala
+scala> x()
+res0: repatch.twitter.response.Tweet = Tweet(333505115287846913, ...
+
+scala> val deleted = http(client(Status.destroy(res0.id)) OK as.repatch.twitter.response.Tweet)
+deleted: dispatch.Future[repatch.twitter.response.Tweet] = scala.concurrent.impl.Promise$DefaultPromise@a852084
+
+scala> deleted()
+res3: repatch.twitter.response.Tweet = Tweet(333505115287846913, ...
+```

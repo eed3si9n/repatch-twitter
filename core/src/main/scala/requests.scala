@@ -92,14 +92,36 @@ object Status {
 
   /** See https://dev.twitter.com/docs/api/1.1/get/statuses/retweets_of_me
    */
-  def retweets(id: BigInt): RetweetsTimeline = RetweetsTimeline(id)
-  case class RetweetsTimeline(id: BigInt, params: Map[String, String] = Map()) extends Method
-      with Param[RetweetsTimeline] with TimelineParam[RetweetsTimeline] {
+  def retweets(id: BigInt): Retweets = Retweets(id)
+  case class Retweets(id: BigInt, params: Map[String, String] = Map()) extends Method
+      with Param[Retweets] with TimelineParam[Retweets] {
     def complete = _ / "statuses" / "retweets" / ("%s.json" format id.toString) <<? params
-    def param[A: Show](key: String)(value: A): RetweetsTimeline =
+    def param[A: Show](key: String)(value: A): Retweets =
       copy(params = params + (key -> implicitly[Show[A]].shows(value)))
   }
 
+  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/show/%3Aid
+   */
+  def show(id: BigInt): ShowStatus = ShowStatus(id)
+  case class ShowStatus(id: BigInt, params: Map[String, String] = Map()) extends Method
+      with Param[ShowStatus] with TimelineParam[ShowStatus] {
+    def complete = _ / "statuses" / "show" / ("%s.json" format id.toString) <<? params
+    def param[A: Show](key: String)(value: A): ShowStatus =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+    val include_my_retweet = 'include_my_retweet[Boolean]
+  }
+
+  /** See https://dev.twitter.com/docs/api/1.1/post/statuses/destroy/%3Aid
+   */
+  def destroy(id: BigInt): DestroyStatus = DestroyStatus(id)
+  case class DestroyStatus(id: BigInt, params: Map[String, String] = Map()) extends Method
+      with Param[DestroyStatus] {
+    def complete = _ / "statuses" / "destroy" / ("%s.json" format id.toString) << params
+    def param[A: Show](key: String)(value: A): DestroyStatus =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+    val trim_user       = 'trim_user[Boolean]
+  }
+  
   /** See https://dev.twitter.com/docs/api/1.1/post/statuses/update
    */
   def update(status: String): Update = Update(Map("status" -> status))
