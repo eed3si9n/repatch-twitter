@@ -49,6 +49,7 @@ case class Tweet(
 /** https://dev.twitter.com/docs/platform-objects/tweets 
  */
 object Tweet extends Parse with CommonField {
+  val rebracket = (s: String) => s replace ("&gt;", ">") replace ("&lt;", "<")
   val contributors   = 'contributors[List[JValue]]
   val coordinates    = 'coordinates[JObject]
   val current_user_retweet = 'current_user_retweet[JObject]
@@ -66,10 +67,10 @@ object Tweet extends Parse with CommonField {
   val source         = 'source.![String]
   val retweet_count  = 'retweet_count.![Int]
   val retweeted      = 'retweeted.![Boolean]
-  val text           = 'text.![String]
+  val text           = 'text.![String] andThen rebracket
   val truncated      = 'truncated.![Boolean]
   val user           = 'user[JObject]
-  
+
   def apply(js: JValue): Tweet = Tweet(
     id = id(js),
     text = text(js),

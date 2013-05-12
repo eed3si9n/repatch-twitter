@@ -173,7 +173,7 @@ rts: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.im
 
 scala> rts()
 res4: List[repatch.twitter.response.Tweet] = 
-List(Tweet(317776021933916160,RT @eed3si9n: scala&gt; :k Monad // Finds locally imported types.
+List(Tweet(317776021933916160,RT @eed3si9n: scala> :k Monad // Finds locally imported types.
 ```
 
 ### [GET statuses/show/:id](https://dev.twitter.com/docs/api/1.1/get/statuses/show/%3Aid)
@@ -187,7 +187,7 @@ x: dispatch.Future[repatch.twitter.response.Tweet] = scala.concurrent.impl.Promi
 
 scala> x()
 res2: repatch.twitter.response.Tweet = 
-Tweet(317744323254943744,scala&gt; :k Monad // Finds locally imported types
+Tweet(317744323254943744,scala> :k Monad // Finds locally imported types
 ```
 
 ### [POST statuses/destroy/:id](https://dev.twitter.com/docs/api/1.1/post/statuses/destroy/%3Aid)
