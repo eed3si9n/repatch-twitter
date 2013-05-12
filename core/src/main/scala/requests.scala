@@ -148,9 +148,49 @@ object Status {
   }
 }
 
-trait TimelineParam[R] extends CommonParam[R] with TrimUserParam[R] { self: Param[R] =>
+/** See https://dev.twitter.com/docs/api/1.1/post/favorites/create
+ */
+case class Favorite(params: Map[String, String]) extends Method
+    with Param[Favorite] with IncludeEntitiesParam[Favorite] {
+  def complete = _ / "favorites" / "create.json" << params
+  def param[A: Show](key: String)(value: A): Favorite =
+    copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+}
+
+object Favorite {
+  def apply(id: BigInt): Favorite = Favorite(Map("id" -> id.toString))
+  def create(id: BigInt): Favorite = apply(id)
+
+  /** See https://dev.twitter.com/docs/api/1.1/post/favorites/destroy
+   */
+  def destroy(id: BigInt): DestroyFavorite = DestroyFavorite(Map("id" -> id.toString))
+  case class DestroyFavorite(params: Map[String, String]) extends Method
+      with Param[DestroyFavorite] with IncludeEntitiesParam[DestroyFavorite] {
+    def complete = _ / "favorites" / "destroy.json" << params
+    def param[A: Show](key: String)(value: A): DestroyFavorite =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  }
+
+  /** See https://dev.twitter.com/docs/api/1.1/get/favorites/list
+   */
+  def list: ListFavorite = ListFavorite()
+  def list(user_id: BigInt): ListFavorite = ListFavorite(Map("user_id" -> user_id.toString))
+  def list(screen_name: String): ListFavorite = ListFavorite(Map("screen_name" -> screen_name))
+  case class ListFavorite(params: Map[String, String] = Map()) extends Method
+      with Param[ListFavorite] with CommonParam[ListFavorite] with IncludeEntitiesParam[ListFavorite] {
+    def complete = _ / "favorites" / "list.json" <<? params
+    def param[A: Show](key: String)(value: A): ListFavorite =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  }
+}
+
+trait TimelineParam[R] extends CommonParam[R]
+    with TrimUserParam[R] with IncludeEntitiesParam[R] { self: Param[R] =>
   val exclude_replies = 'exclude_replies[Boolean]
   val contributor_details = 'contributor_details[Boolean]
+}
+
+trait IncludeEntitiesParam[R] { self: Param[R] =>
   val include_entities = 'include_entities[Boolean]
 }
 

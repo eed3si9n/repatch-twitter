@@ -204,3 +204,48 @@ deleted: dispatch.Future[repatch.twitter.response.Tweet] = scala.concurrent.impl
 scala> deleted()
 res3: repatch.twitter.response.Tweet = Tweet(333505115287846913, ...
 ```
+
+favorites
+---------
+
+### [GET favorites/list](https://dev.twitter.com/docs/api/1.1/get/favorites/list)
+
+> Returns the 20 most recent Tweets favorited by the authenticating or specified user.
+
+```scala
+scala> val myfavs = http(client(Favorite.list) OK as.repatch.twitter.response.Tweets)
+favs: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@4482d3a3
+
+scala> myfavs()
+res0: List[repatch.twitter.response.Tweet] = List(Tweet(331773677295239169
+
+scala> val favs = http(client(Favorite.list("PLT_HULK")) OK as.repatch.twitter.response.Tweets)
+favs: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@366ec9d4
+
+scala> favs()
+res1: List[repatch.twitter.response.Tweet] = List(Tweet(246253900770983937,@PLT_Hulk is angry lately.,...
+```
+
+### [POST favorites/create](https://dev.twitter.com/docs/api/1.1/post/favorites/create)
+
+> Favorites the status specified in the ID parameter as the authenticating user.
+
+```scala
+scala> val fav = http(client(Favorite(res0.id)) OK as.repatch.twitter.response.Tweet)
+fav: dispatch.Future[repatch.twitter.response.Tweet] = scala.concurrent.impl.Promise$DefaultPromise@12810908
+
+scala> fav()
+res1: repatch.twitter.response.Tweet = Tweet(333297803155611649,
+```
+
+### [POST favorites/destroy](https://dev.twitter.com/docs/api/1.1/post/favorites/destroy)
+
+> Un-favorites the status specified in the ID parameter as the authenticating user.
+
+```scala
+scala> val unfav = http(client(Favorite.destroy(res0.id)) OK as.repatch.twitter.response.Tweet)
+unfav: dispatch.Future[repatch.twitter.response.Tweet] = scala.concurrent.impl.Promise$DefaultPromise@7f3e93cb
+
+scala> unfav()
+res1: repatch.twitter.response.Tweet = Tweet(333297803155611649
+```

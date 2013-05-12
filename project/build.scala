@@ -47,7 +47,12 @@ object Builds extends Build {
     }
   )
   lazy val coreSettings = buildSettings ++ Seq(
-    name := "repatch-twitter-core"
+    name := "repatch-twitter-core",
+    initialCommands in console := """import dispatch._, Defaults._
+                                    |import repatch.twitter.request._
+                                    |val prop = new java.io.File(System.getProperty("user.home"), ".foo.properties")
+                                    |val client = PropertiesClient(prop)
+                                    |val http = new Http""".stripMargin
   )
 
   lazy val root = Project("root", file("."),
