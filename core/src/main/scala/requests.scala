@@ -115,17 +115,17 @@ object Status {
    */
   def destroy(id: BigInt): DestroyStatus = DestroyStatus(id)
   case class DestroyStatus(id: BigInt, params: Map[String, String] = Map()) extends Method
-      with Param[DestroyStatus] {
+      with Param[DestroyStatus] with TrimUserParam[DestroyStatus] {
     def complete = _ / "statuses" / "destroy" / ("%s.json" format id.toString) << params
     def param[A: Show](key: String)(value: A): DestroyStatus =
       copy(params = params + (key -> implicitly[Show[A]].shows(value)))
-    val trim_user       = 'trim_user[Boolean]
   }
-  
+
   /** See https://dev.twitter.com/docs/api/1.1/post/statuses/update
    */
   def update(status: String): Update = Update(Map("status" -> status))
-  case class Update(params: Map[String, String]) extends Method with Param[Update] {
+  case class Update(params: Map[String, String]) extends Method
+      with Param[Update] with TrimUserParam[Update] {
     def complete = _ / "statuses" / "update.json" << params
 
     def param[A: Show](key: String)(value: A): Update =
@@ -135,15 +135,27 @@ object Status {
     val `long`          = 'long[Double]
     val place_id        = 'place_id[String]
     val display_coordinates = 'display_coordinates[Boolean]
-    val trim_user       = 'trim_user[Boolean]
+  }
+
+  /** See https://dev.twitter.com/docs/api/1.1/post/statuses/retweet/%3Aid
+   */
+  def retweet(id: BigInt): Retweet = Retweet(id)
+  case class Retweet(id: BigInt, params: Map[String, String] = Map()) extends Method
+      with Param[Retweet] with TrimUserParam[Retweet] {
+    def complete = _ / "statuses" / "retweet" / ("%s.json" format id.toString) << params
+    def param[A: Show](key: String)(value: A): Retweet =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
   }
 }
 
-trait TimelineParam[R] extends CommonParam[R] { self: Param[R] =>
-  val trim_user       = 'trim_user[Boolean]
+trait TimelineParam[R] extends CommonParam[R] with TrimUserParam[R] { self: Param[R] =>
   val exclude_replies = 'exclude_replies[Boolean]
   val contributor_details = 'contributor_details[Boolean]
   val include_entities = 'include_entities[Boolean]
+}
+
+trait TrimUserParam[R] { self: Param[R] =>
+  val trim_user       = 'trim_user[Boolean]
 }
 
 trait CommonParam[R] { self: Param[R] =>
