@@ -56,7 +56,7 @@ search
 Here's how you can search for tweets:
 
 ```scala
-scala> val x = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) >
+scala> val x = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) OK
          as.repatch.twitter.response.Search)
 x2: dispatch.Future[repatch.twitter.response.Search] = scala.concurrent.impl.Promise$DefaultPromise@6bc9806d
 
@@ -67,7 +67,7 @@ search: repatch.twitter.response.Search = Search(List(Tweet(330931826879234049,R
 In the above, `repatch.twitter.request.Search` is a request builder, supporting methods such as `geocode_mi` and `count`, which return `Search`. Using `as.repatch.twitter.response.Search` converter returns `repatch.twitter.response.Search`. Alternatively, you can return json, and parse individual fields as follows:
 
 ```scala
-scala> val x = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) > as.json4s.Json)
+scala> val x = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) OK as.json4s.Json)
 x: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$DefaultPromise@3252d2de
 
 scala> val json = x()
@@ -92,12 +92,25 @@ timelines
 Here's how to get your timeline.
 
 ```scala
-scala> val x = http(client(Status.home_timeline) > as.repatch.twitter.response.Tweets)
+scala> val x = http(client(Status.home_timeline) OK as.repatch.twitter.response.Tweets)
 x: dispatch.Future[repatch.twitter.response.Statuses] = scala.concurrent.impl.Promise$DefaultPromise@41ad625a
 
 scala> x()
 res0: List[repatch.twitter.response.Tweet] = 
 List(Tweet(331691122629951489,Partially applying a function that has an implicit parameter http://t.co/CwWQAkkBAN,....
+```
+
+### [GET statuses/mentions_timeline](https://dev.twitter.com/docs/api/1.1/get/statuses/mentions_timeline)
+
+> Returns the 20 most recent mentions.
+
+```scala
+scala> val timeline = http(client(Status.mentions_timeline) OK as.repatch.twitter.response.Tweets)
+timeline: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@53a5af37
+
+scala> timeline()
+res0: List[repatch.twitter.response.Tweet] = 
+List(Tweet(333386163618455553,@eed3si9n I keep seeing pros and cons...
 ```
 
 tweets
@@ -109,7 +122,7 @@ Send a tweet.
 
 ```scala
 scala> val x = http(client(Status.update("testing from REPL"))
-         > as.repatch.twitter.response.Tweet)
+         OK as.repatch.twitter.response.Tweet)
 x: dispatch.Future[repatch.twitter.response.Tweet = scala.concurrent.impl.Promise$DefaultPromise@65056d18
 ```
 

@@ -47,20 +47,26 @@ object Search {
 }
 
 object Status {
+  /** See https://dev.twitter.com/docs/api/1.1/get/statuses/mentions_timeline.
+   * Wraps https://api.twitter.com/1.1/statuses/mentions_timeline.json.
+   */
+  def mentions_timeline: MentionsTimeline = MentionsTimeline()
+  case class MentionsTimeline(params: Map[String, String] = Map()) extends Method
+      with Param[MentionsTimeline] with TimelineParam[MentionsTimeline] {
+    def complete = _ / "statuses" / "mentions_timeline.json" <<? params
+    def param[A: Show](key: String)(value: A): MentionsTimeline =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  }
+
   /** See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline.
    * Wraps https://api.twitter.com/1.1/statuses/home_timeline.json
    */ 
   def home_timeline: HomeTimeline = HomeTimeline()
   case class HomeTimeline(params: Map[String, String] = Map()) extends Method
-      with Param[HomeTimeline] with CommonParam[HomeTimeline] {
+      with Param[HomeTimeline] with TimelineParam[HomeTimeline] {
     def complete = _ / "statuses" / "home_timeline.json" <<? params
-
     def param[A: Show](key: String)(value: A): HomeTimeline =
       copy(params = params + (key -> implicitly[Show[A]].shows(value)))
-    val trim_user       = 'trim_user[Boolean]
-    val exclude_replies = 'exclude_replies[Boolean]
-    val contributor_details = 'contributor_details[Boolean]
-    val include_entities = 'include_entities[Boolean]
   }
 
   /** See https://dev.twitter.com/docs/api/1.1/post/statuses/update
@@ -78,6 +84,13 @@ object Status {
     val display_coordinates = 'display_coordinates[Boolean]
     val trim_user       = 'trim_user[Boolean]
   }
+}
+
+trait TimelineParam[R] extends CommonParam[R] { self: Param[R] =>
+  val trim_user       = 'trim_user[Boolean]
+  val exclude_replies = 'exclude_replies[Boolean]
+  val contributor_details = 'contributor_details[Boolean]
+  val include_entities = 'include_entities[Boolean]
 }
 
 trait CommonParam[R] { self: Param[R] =>
