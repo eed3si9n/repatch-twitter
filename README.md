@@ -249,3 +249,33 @@ unfav: dispatch.Future[repatch.twitter.response.Tweet] = scala.concurrent.impl.P
 scala> unfav()
 res1: repatch.twitter.response.Tweet = Tweet(333297803155611649
 ```
+
+streaming
+---------
+
+### [POST statuses/filter](https://dev.twitter.com/docs/api/1.1/post/statuses/filter)
+
+> Returns public statuses that match one or more filter predicates.
+
+```scala
+scala> http(client(PublicStream.track("scala")) > 
+         as.repatch.twitter.response.stream.TweetOrJson {
+         case Right(tweet) => println(tweet) 
+         case Left(json)   => println(json) 
+       })
+res0: dispatch.Future[Unit] = scala.concurrent.impl.Promise$DefaultPromise@3f77f4ea
+
+scala> Tweet(333804083792191488,Looking for a Hoogle like to Scala? ....
+```
+
+### [GET user](https://dev.twitter.com/docs/api/1.1/get/user)
+
+> Streams messages for a single user, as described in User streams.
+
+```scala
+scala> http(client(UserStream()) > as.repatch.twitter.response.stream.TweetOrJson {
+         case Right(tweet) => println(tweet) 
+         case Left(json)   => println(json) 
+       })
+res0: dispatch.Future[Unit] = scala.concurrent.impl.Promise$DefaultPromise@451094e7
+```

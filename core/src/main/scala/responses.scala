@@ -41,7 +41,7 @@ case class Tweet(
   source: String,
   lang: Option[String],
   coordinates: Option[JObject],
-  entities: JObject,
+  entities: Option[JObject],
   in_reply_to_status_id: Option[BigInt],
   in_reply_to_user_id: Option[BigInt]
 )
@@ -49,7 +49,7 @@ case class Tweet(
 /** https://dev.twitter.com/docs/platform-objects/tweets 
  */
 object Tweet extends Parse with CommonField {
-  val rebracket = (s: String) => s replace ("&gt;", ">") replace ("&lt;", "<")
+  val rebracket = (s: String) => s replace ("&gt;", ">") replace ("&lt;", "<") replace ("&amp;", "&")
   val contributors   = 'contributors[List[JValue]]
   val coordinates    = 'coordinates[JObject]
   val current_user_retweet = 'current_user_retweet[JObject]
@@ -88,6 +88,22 @@ object Tweet extends Parse with CommonField {
     in_reply_to_status_id = in_reply_to_status_id(js),
     in_reply_to_user_id = in_reply_to_user_id(js)   
   )
+
+  // consider the incoming json a Tweet if there're
+  // id, text, and retweeted field.
+  def unapply(js: JValue): Option[Tweet] = js match {
+    case JObject(v) =>
+      val obj = JObject(v)
+      val itr = for {
+        i <- 'id[BigInt](obj)
+        t <- 'text[String](obj)
+        r <- 'retweeted[Boolean](obj)
+      } yield (i, t, r)
+      itr map { _ =>
+        Tweet(obj)
+      }
+    case _ => None 
+  }
 }
 
 object Tweets extends Parse {
@@ -115,7 +131,7 @@ case class User(
   profile_image_url: String,
   profile_image_url_https: String,
   lang: Option[String],
-  entities: JObject
+  entities: Option[JObject]
 )
 
 /** https://dev.twitter.com/docs/platform-objects/users
@@ -185,7 +201,7 @@ trait CommonField { self: Parse =>
   val id                    = 'id.![BigInt]
   val id_str                = 'id_str.![String]
   val created_at            = 'created_at.![Calendar]
-  val entities              = 'entities.![JObject]
+  val entities              = 'entities[JObject]
   val lang                  = 'lang[String]
   val withheld_copyright    = 'withheld_copyright[Boolean]
   val withheld_in_countries = 'withheld_in_countries[List[JValue]]
@@ -199,7 +215,8 @@ trait Parse {
   def parseField[A: ReadJs](key: String)(js: JValue): Option[A] = parse[A](js \ key)
   def parseField_![A: ReadJs](key: String)(js: JValue): A = parseField(key)(js).get
   implicit class SymOp(sym: Symbol) {
-    def apply[A: ReadJs]: JValue => Option[A] = parseField[A](sym.name)_
+    def apply[A: ReadJs](js: JValue): Option[A] = parseField[A](sym.name)(js)
+    def apply[A: ReadJs]: JValue => Option[A] = apply[A](_)
     def ![A: ReadJs]: JValue => A = parseField_![A](sym.name)_
   }
 }

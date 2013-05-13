@@ -184,6 +184,37 @@ object Favorite {
   }
 }
 
+/** https://dev.twitter.com/docs/api/1.1/post/statuses/filter
+ */
+case class PublicStream(params: Map[String, String]) extends Method
+    with Param[PublicStream] with StreamParam[PublicStream] {
+  def complete = (_: Req) => url("https://stream.twitter.com/1.1/statuses/filter.json") << params
+  def param[A: Show](key: String)(value: A): PublicStream =
+    copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  val follow          = 'follow[String]
+}
+
+object PublicStream {
+  private def empty: PublicStream = PublicStream(Map())
+  def follow(a: String): PublicStream = empty.follow(a)
+  /** Keywords to track. Phrases of keywords are specified by a comma-separated list. */
+  def track(a: String): PublicStream = empty.track(a)
+  def locations(a: String): PublicStream = empty.locations(a)
+}
+
+/** See https://dev.twitter.com/docs/api/1.1/get/user
+ */
+case class UserStream(params: Map[String, String] = Map()) extends Method
+    with Param[UserStream] with StreamParam[UserStream] {
+  def complete = (_: Req) => url("https://userstream.twitter.com/1.1/user.json") << params
+  def param[A: Show](key: String)(value: A): UserStream =
+    copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  /** user, followings */
+  val `with`          = 'with[String]
+  /** all */
+  val replies         = 'replies[String]
+}
+
 trait TimelineParam[R] extends CountParam[R]
     with TrimUserParam[R] with IncludeEntitiesParam[R] { self: Param[R] =>
   val exclude_replies = 'exclude_replies[Boolean]
@@ -202,6 +233,14 @@ trait CountParam[R] { self: Param[R] =>
   val count           = 'count[Int]
   val since_id        = 'since_id[BigInt]
   val max_id          = 'max_id[BigInt]
+}
+
+trait StreamParam[R] { self: Param[R] =>
+  /** length */
+  val delimited       = 'delimited[String]
+  val stall_warnings  = 'stall_warnings[Boolean]
+  val locations       = 'locations[String]
+  val track           = 'track[String]
 }
 
 trait Param[R] {
