@@ -25,7 +25,7 @@ object Show {
 
 // https://api.twitter.com/1.1/search/tweets.json
 case class Search(params: Map[String, String]) extends Method
-    with Param[Search] with CommonParam[Search] {
+    with Param[Search] with CountParam[Search] {
   def complete = _ / "search" / "tweets.json" <<? params
 
   def param[A: Show](key: String)(value: A): Search =
@@ -177,14 +177,14 @@ object Favorite {
   def list(user_id: BigInt): ListFavorite = ListFavorite(Map("user_id" -> user_id.toString))
   def list(screen_name: String): ListFavorite = ListFavorite(Map("screen_name" -> screen_name))
   case class ListFavorite(params: Map[String, String] = Map()) extends Method
-      with Param[ListFavorite] with CommonParam[ListFavorite] with IncludeEntitiesParam[ListFavorite] {
+      with Param[ListFavorite] with CountParam[ListFavorite] with IncludeEntitiesParam[ListFavorite] {
     def complete = _ / "favorites" / "list.json" <<? params
     def param[A: Show](key: String)(value: A): ListFavorite =
       copy(params = params + (key -> implicitly[Show[A]].shows(value)))
   }
 }
 
-trait TimelineParam[R] extends CommonParam[R]
+trait TimelineParam[R] extends CountParam[R]
     with TrimUserParam[R] with IncludeEntitiesParam[R] { self: Param[R] =>
   val exclude_replies = 'exclude_replies[Boolean]
   val contributor_details = 'contributor_details[Boolean]
@@ -198,7 +198,7 @@ trait TrimUserParam[R] { self: Param[R] =>
   val trim_user       = 'trim_user[Boolean]
 }
 
-trait CommonParam[R] { self: Param[R] =>
+trait CountParam[R] { self: Param[R] =>
   val count           = 'count[Int]
   val since_id        = 'since_id[BigInt]
   val max_id          = 'max_id[BigInt]
