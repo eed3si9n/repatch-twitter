@@ -42,6 +42,7 @@ case class Tweet(
   lang: Option[String],
   coordinates: Option[JObject],
   entities: Option[JObject],
+  retweeted_status: Option[Tweet],
   in_reply_to_status_id: Option[BigInt],
   in_reply_to_user_id: Option[BigInt]
 )
@@ -67,6 +68,7 @@ object Tweet extends Parse with CommonField {
   val source         = 'source.![String]
   val retweet_count  = 'retweet_count.![Int]
   val retweeted      = 'retweeted.![Boolean]
+  val retweeted_status = 'retweeted_status[JObject]
   val text           = 'text.![String] andThen rebracket
   val truncated      = 'truncated.![Boolean]
   val user           = 'user[JObject]
@@ -85,6 +87,7 @@ object Tweet extends Parse with CommonField {
     lang = lang(js),
     coordinates = coordinates(js),
     entities = entities(js),
+    retweeted_status = retweeted_status(js) map { case x => Tweet(x) },
     in_reply_to_status_id = in_reply_to_status_id(js),
     in_reply_to_user_id = in_reply_to_user_id(js)   
   )

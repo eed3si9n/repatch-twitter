@@ -23,7 +23,7 @@ object Show {
   }
 }
 
-// https://api.twitter.com/1.1/search/tweets.json
+// See https://api.twitter.com/1.1/search/tweets.json
 case class Search(params: Map[String, String]) extends Method
     with Param[Search] with CountParam[Search] {
   def complete = _ / "search" / "tweets.json" <<? params
