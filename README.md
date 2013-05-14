@@ -315,6 +315,30 @@ scala> {
 res0: List[BigInt] = List(1234567, ...
 ```
 
+### [POST friendships/create](https://dev.twitter.com/docs/api/1.1/post/friendships/create)
+
+> Allows the authenticating users to follow the user specified in the ID parameter.
+
+```scala
+scala> val u = http(client(Friendship("twitterapi")) OK as.repatch.twitter.response.User)
+u: dispatch.Future[repatch.twitter.response.User] = scala.concurrent.impl.Promise$DefaultPromise@50e3fa1d
+
+scala> u()
+res0: repatch.twitter.response.User = User(6253282,twitterapi,...
+```
+
+### [POST friendships/destroy](https://dev.twitter.com/docs/api/1.1/post/friendships/destroy)
+
+> Allows the authenticating user to unfollow the user specified in the ID parameter.
+
+```scala
+scala> val u = http(client(Friendship.destroy("twitterapi")) OK as.repatch.twitter.response.User)
+u: dispatch.Future[repatch.twitter.response.User] = scala.concurrent.impl.Promise$DefaultPromise@487793db
+
+scala> u()
+res0: repatch.twitter.response.User = User(6253282,twitterapi,...
+```
+
 users
 -----
 

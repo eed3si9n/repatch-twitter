@@ -239,6 +239,32 @@ object Follower {
   }
 }
 
+/** See https://dev.twitter.com/docs/api/1.1/post/friendships/create
+ */
+case class Friendship(params: Map[String, String]) extends Method
+    with Param[Friendship] {
+  def complete = _ / "friendships" / "create.json" << params
+  def param[A: Show](key: String)(value: A): Friendship =
+    copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  val follow          = 'follow[Boolean]
+}
+
+object Friendship {
+  def apply(user_id: BigInt): Friendship = Friendship(Map("user_id" -> user_id.toString))
+  def apply(screen_name: String): Friendship = Friendship(Map("screen_name" -> screen_name))
+
+  /** See https://dev.twitter.com/docs/api/1.1/post/friendships/destroy
+   */
+  def destroy(user_id: BigInt): DestroyFriendship = DestroyFriendship(Map("user_id" -> user_id.toString))
+  def destroy(screen_name: String): DestroyFriendship = DestroyFriendship(Map("screen_name" -> screen_name))
+  case class DestroyFriendship(params: Map[String, String]) extends Method
+      with Param[DestroyFriendship] {
+    def complete = _ / "friendships" / "destroy.json" << params
+    def param[A: Show](key: String)(value: A): DestroyFriendship =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  }
+}
+
 object User {
   /** See https://dev.twitter.com/docs/api/1.1/get/users/show
    */
