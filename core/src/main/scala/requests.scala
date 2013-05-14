@@ -215,6 +215,30 @@ case class UserStream(params: Map[String, String] = Map()) extends Method
   val replies         = 'replies[String]
 }
 
+object Friend {
+  /** See https://dev.twitter.com/docs/api/1.1/get/friends/ids
+   */
+  def ids: FriendIds = FriendIds()
+  case class FriendIds(params: Map[String, String] = Map()) extends Method
+      with Param[FriendIds] with FriendParam[FriendIds] {
+    def complete = _ / "friends" / "ids.json" <<? params
+    def param[A: Show](key: String)(value: A): FriendIds =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  }
+}
+
+object Follower {
+  /** https://dev.twitter.com/docs/api/1.1/get/followers/ids
+   */
+  def ids: FollowerIds = FollowerIds()
+  case class FollowerIds(params: Map[String, String] = Map()) extends Method
+      with Param[FollowerIds] with FriendParam[FollowerIds] {
+    def complete = _ / "followers" / "ids.json" <<? params
+    def param[A: Show](key: String)(value: A): FollowerIds =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  }
+}
+
 trait TimelineParam[R] extends CountParam[R]
     with TrimUserParam[R] with IncludeEntitiesParam[R] { self: Param[R] =>
   val exclude_replies = 'exclude_replies[Boolean]
@@ -241,6 +265,14 @@ trait StreamParam[R] { self: Param[R] =>
   val stall_warnings  = 'stall_warnings[Boolean]
   val locations       = 'locations[String]
   val track           = 'track[String]
+}
+
+trait FriendParam[R] { self: Param[R] =>
+  val user_id         = 'user_id[BigInt]
+  val screen_name     = 'screen_name[String]
+  val cursor          = 'cursor[BigInt]
+  val stringify_ids   = 'stringify_ids[Boolean]
+  val count           = 'count[Int]
 }
 
 trait Param[R] {

@@ -197,6 +197,12 @@ object User extends Parse with CommonField {
   )
 }
 
+object Friend extends Parse with FriendField {
+}
+
+object Follower extends Parse with FriendField {
+}
+
 trait CommonField { self: Parse =>
   val id                    = 'id.![BigInt]
   val id_str                = 'id_str.![String]
@@ -206,6 +212,14 @@ trait CommonField { self: Parse =>
   val withheld_copyright    = 'withheld_copyright[Boolean]
   val withheld_in_countries = 'withheld_in_countries[List[JValue]]
   val withheld_scope        = 'withheld_scope[String]
+}
+
+trait FriendField { self: Parse =>
+  val ids                   = 'ids.![List[BigInt]]
+  val previous_cursor       = 'previous_cursor.![BigInt]
+  val previous_cursor_str   = 'previous_cursor_str.![String]
+  val next_cursor           = 'next_cursor.![BigInt]
+  val next_cursor_str       = 'next_cursor_str.![String]
 }
 
 trait Parse {
@@ -244,4 +258,11 @@ object ReadJs {
       c.setTime(date)
       c
     }
+  implicit def readJsListRead[A: ReadJs]: ReadJs[List[A]] = {
+    val f = implicitly[ReadJs[A]].readJs
+    readJs {
+      case JArray(xs) if xs forall {f.isDefinedAt} =>
+        xs map {f.apply}
+    }
+  }  
 }

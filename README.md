@@ -279,3 +279,39 @@ scala> http(client(UserStream()) > as.repatch.twitter.response.stream.TweetOrJso
        })
 res0: dispatch.Future[Unit] = scala.concurrent.impl.Promise$DefaultPromise@451094e7
 ```
+
+friends & followers
+-------------------
+
+### [GET friends/ids](https://dev.twitter.com/docs/api/1.1/get/friends/ids)
+
+> Returns a cursored collection of user IDs for every user the specified user is following.
+
+```scala
+scala> val x = http(client(Friend.ids) OK as.json4s.Json)
+x: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$DefaultPromise@72d53ac7
+
+scala> {
+         import repatch.twitter.response.Friend._
+         val json = x()
+         ids(json)
+       }
+res0: List[BigInt] = List(812340000, ...
+```
+
+### [GET followers/ids](https://dev.twitter.com/docs/api/1.1/get/followers/ids)
+
+> Returns a cursored collection of user IDs for every user following the specified user.
+
+```scala
+scala> val x = http(client(Follower.ids) OK as.json4s.Json)
+x: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$DefaultPromise@7449d884
+
+scala> {
+         import repatch.twitter.response.Follower._
+         val json = x()
+         ids(json)
+       }
+res0: List[BigInt] = List(1234567, ...
+```
+
