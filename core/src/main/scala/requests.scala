@@ -228,13 +228,26 @@ object Friend {
 }
 
 object Follower {
-  /** https://dev.twitter.com/docs/api/1.1/get/followers/ids
+  /** See https://dev.twitter.com/docs/api/1.1/get/followers/ids
    */
   def ids: FollowerIds = FollowerIds()
   case class FollowerIds(params: Map[String, String] = Map()) extends Method
       with Param[FollowerIds] with FriendParam[FollowerIds] {
     def complete = _ / "followers" / "ids.json" <<? params
     def param[A: Show](key: String)(value: A): FollowerIds =
+      copy(params = params + (key -> implicitly[Show[A]].shows(value)))
+  }
+}
+
+object User {
+  /** See https://dev.twitter.com/docs/api/1.1/get/users/show
+   */
+  def show(user_id: BigInt): ShowUser = ShowUser(Map("user_id" -> user_id.toString))
+  def show(screen_name: String): ShowUser = ShowUser(Map("screen_name" -> screen_name))
+  case class ShowUser(params: Map[String, String]) extends Method
+      with Param[ShowUser] with IncludeEntitiesParam[ShowUser] {
+    def complete = _ / "users" / "show.json" <<? params
+    def param[A: Show](key: String)(value: A): ShowUser =
       copy(params = params + (key -> implicitly[Show[A]].shows(value)))
   }
 }
@@ -267,9 +280,12 @@ trait StreamParam[R] { self: Param[R] =>
   val track           = 'track[String]
 }
 
-trait FriendParam[R] { self: Param[R] =>
+trait UserIdParam[R] { self: Param[R] =>
   val user_id         = 'user_id[BigInt]
   val screen_name     = 'screen_name[String]
+}
+
+trait FriendParam[R] extends UserIdParam[R] { self: Param[R] =>
   val cursor          = 'cursor[BigInt]
   val stringify_ids   = 'stringify_ids[Boolean]
   val count           = 'count[Int]

@@ -315,3 +315,17 @@ scala> {
 res0: List[BigInt] = List(1234567, ...
 ```
 
+users
+-----
+
+### [GET users/show](https://dev.twitter.com/docs/api/1.1/get/users/show)
+
+> Returns a variety of information about the user specified by the required user_id or screen_name parameter. 
+
+```scala
+scala> val u = http(client(User.show("twitterapi")) OK as.repatch.twitter.response.User)
+u: dispatch.Future[repatch.twitter.response.User] = scala.concurrent.impl.Promise$DefaultPromise@3aff776
+
+scala> u().status map {_.text}
+res0: Option[String] = Some(We have deprecated HTTP 1.0 support for the Streaming API: https://t.co/JfieFem8Kf)
+```

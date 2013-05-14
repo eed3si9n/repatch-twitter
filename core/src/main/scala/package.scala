@@ -10,4 +10,5 @@ package object response {
   val Statuses: Response => List[r.Tweet] = Tweets
   val Tweet: Response => r.Tweet = Json andThen r.Tweet.apply
   val Status: Response => r.Tweet = Tweet
+  val User: Response => r.User = Json andThen r.User.apply
 }
