@@ -1,7 +1,9 @@
 repatch-twitter
 ===============
 
-repatch-twitter is a Dispatch 0.10 plugin for Twitter API.
+repatch-twitter is a Dispatch 0.10 plugin for [Twitter API][twitterapi].
+
+- [API doc](http://eed3si9n.github.io/repatch-twitter/latest/api/)
 
 setup
 -----
@@ -353,3 +355,6 @@ u: dispatch.Future[repatch.twitter.response.User] = scala.concurrent.impl.Promis
 scala> u().status map {_.text}
 res0: Option[String] = Some(We have deprecated HTTP 1.0 support for the Streaming API: https://t.co/JfieFem8Kf)
 ```
+
+  [twitterapi]: https://dev.twitter.com/docs/api/1.1
+
