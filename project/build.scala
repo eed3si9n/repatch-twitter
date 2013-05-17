@@ -1,4 +1,8 @@
 import sbt._
+import com.typesafe.sbt.SbtGhPages._
+import com.typesafe.sbt.SbtGit.{GitKeys => git}
+import com.typesafe.sbt.SbtSite._
+import sbtunidoc.Plugin._
 
 object Builds extends Build {
   import Keys._
@@ -46,6 +50,12 @@ object Builds extends Build {
       ("-(M|RC)".r findFirstIn sv) map {_ => CrossVersion.full} getOrElse CrossVersion.binary
     }
   )
+  lazy val rootSettings = buildSettings ++ unidocSettings ++ 
+      site.settings ++ ghpages.settings ++ Seq(
+    name := "repatch-twitter",
+    git.gitRemoteRepo := "git@github.com:eed3si9n/repatch-twitter.git",
+    site.addMappingsToSiteDir(mappings in packageDoc in ScalaUnidoc, "latest/api")
+  )
   lazy val coreSettings = buildSettings ++ Seq(
     name := "repatch-twitter-core",
     initialCommands in console := """import dispatch._, Defaults._
@@ -55,7 +65,6 @@ object Builds extends Build {
                                     |val http = new Http""".stripMargin
   )
 
-  lazy val root = Project("root", file("."),
-    settings = buildSettings ++ Seq(name := "repatch-twitter")) aggregate(core)
+  lazy val root = Project("root", file("."), settings = rootSettings) aggregate(core)
   lazy val core = Project("core", file("core"), settings = coreSettings)
 }
