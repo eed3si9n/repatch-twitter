@@ -1,15 +1,15 @@
-This is the initial release of [repatch-twitter](https://github.com/eed3si9n/repatch-twitter), a plugin for Dispatch 0.10.0 to use [Twitter REST API v1.1 ](https://dev.twitter.com/docs/api/1.1).
+This is the initial release of [repatch-twitter](https://github.com/eed3si9n/repatch-twitter), a plugin for [Dispatch 0.10.0](http://dispatch.databinder.net/Dispatch.html) to use [Twitter REST API v1.1 ](https://dev.twitter.com/docs/api/1.1).
 
 ### Request builder for basic API end points
 
-It ships with 20+ API end points, including `Search`, `Status.home_timeline`, `PublicStream.track`, etc. with parameters provided as fluent API. For example, here's how to search two tweets about "#scala" in the 10 mile radius from New York City:
+It ships with 20+ API end points, including `Search`, `Status.home_timeline`, `PublicStream.track`, etc with parameters provided as fluent API. For example, here's how to search two tweets about "#scala" in the 10 mile radius from New York City:
 
     scala> val x = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) OK as.json4s.Json)
     x: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$DefaultPromise@3252d2de
  
 ### Field parser
 
-For common objects like `Tweet`, repatch-twitter ships with field parser to help parsing json:
+For common objects like [`Tweet`](http://eed3si9n.github.io/repatch-twitter/latest/api/#repatch.twitter.response.Tweet$), repatch-twitter ships with field parser to help parsing json:
 
     scala> {
              import repatch.twitter.response.Search._
@@ -22,9 +22,11 @@ For common objects like `Tweet`, repatch-twitter ships with field parser to help
 
 ### Case class converter
 
-Finally it comes with some case class converters that has commonly used fields:
+It also comes with case class converters for [`Tweet`](http://eed3si9n.github.io/repatch-twitter/latest/api/#repatch.twitter.response.Tweet) and [`User`](http://eed3si9n.github.io/repatch-twitter/latest/api/#repatch.twitter.response.User). The case classes may not cover all the fields, but it's convenient:
 
-    scala> val x2 = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) OK
-             as.repatch.twitter.response.Search)
-    x2: dispatch.Future[repatch.twitter.response.Search] = scala.concurrent.impl.Promise$DefaultPromise@6bc9806d
+    scala> val timeline = http(client(Status.user_timeline("twitterapi")) OK as.repatch.twitter.response.Tweets)
+    timeline: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@40878d74
 
+    scala> timeline()
+    res0: List[repatch.twitter.response.Tweet] = 
+    List(Tweet(330369772619452416,We're extending API v1 Retirement...
