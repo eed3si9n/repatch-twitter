@@ -1,0 +1,30 @@
+This is the initial release of [repatch-twitter](https://github.com/eed3si9n/repatch-twitter), a plugin for Dispatch 0.10.0 to use [Twitter REST API v1.1 ](https://dev.twitter.com/docs/api/1.1).
+
+### Request builder for basic API end points
+
+It ships with 20+ API end points, including `Search`, `Status.home_timeline`, `PublicStream.track`, etc. with parameters provided as fluent API. For example, here's how to search two tweets about "#scala" in the 10 mile radius from New York City:
+
+    scala> val x = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) OK as.json4s.Json)
+    x: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$DefaultPromise@3252d2de
+ 
+### Field parser
+
+For common objects like `Tweet`, repatch-twitter ships with field parser to help parsing json:
+
+    scala> {
+             import repatch.twitter.response.Search._
+             import repatch.twitter.response.Tweet._
+             for {
+               t <- statuses(json)
+             } yield(id_str(t), text(t))
+           }
+    res0: List[(String, String)] = List((330931826879234049,Rocking the contravariance. Hard. #nerd #scala)
+
+### Case class converter
+
+Finally it comes with some case class converters that has commonly used fields:
+
+    scala> val x2 = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) OK
+             as.repatch.twitter.response.Search)
+    x2: dispatch.Future[repatch.twitter.response.Search] = scala.concurrent.impl.Promise$DefaultPromise@6bc9806d
+

@@ -10,7 +10,7 @@ object Builds extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
     dispatchVersion := "0.10.0",
-    version <<= dispatchVersion { dv => "dispatch" + dv + "_0.1.0-SNAPSHOT" },
+    version <<= dispatchVersion { dv => "dispatch" + dv + "_0.1.0" },
     organization := "com.eed3si9n",
     scalaVersion := "2.10.1",
     libraryDependencies <++= (dispatchVersion) { (dv) => Seq(
@@ -24,7 +24,8 @@ object Builds extends Build {
     crossScalaVersions := Seq("2.10.1"),    
     resolvers += "sonatype-public" at "https://oss.sonatype.org/content/repositories/public",
     licenses := Seq("MIT License" -> url("http://opensource.org/licenses/MIT")),
-    description := """repatch-twitter is a Dispatch plugin for Twitter API.""",
+    description := """repatch-twitter is a plugin for Dispatch to use Twitter API.""",
+    homepage := Some(url("https://github.com/eed3si9n/repatch-twitter")),
     pomExtra := (<scm>
         <url>git@github.com:eed3si9n/repatch-twitter.git</url>
         <connection>scm:git:git@github.com:eed3si9n/repatch-twitter.git</connection>
@@ -53,6 +54,7 @@ object Builds extends Build {
   lazy val rootSettings = buildSettings ++ unidocSettings ++ 
       site.settings ++ ghpages.settings ++ Seq(
     name := "repatch-twitter",
+    publishArtifact := false,
     git.gitRemoteRepo := "git@github.com:eed3si9n/repatch-twitter.git",
     site.addMappingsToSiteDir(mappings in packageDoc in ScalaUnidoc, "latest/api")
   )
