@@ -9,7 +9,7 @@ object Builds extends Build {
   lazy val dispatchVersion = SettingKey[String]("x-dispatch-version")
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-    dispatchVersion := "0.10.0",
+    dispatchVersion := "0.10.1",
     version <<= dispatchVersion { dv => "dispatch" + dv + "_0.1.0" },
     organization := "com.eed3si9n",
     scalaVersion := "2.10.1",
