@@ -1,7 +1,7 @@
 repatch-twitter
 ===============
 
-repatch-twitter is a Dispatch 0.10 plugin for [Twitter API][twitterapi].
+repatch-twitter is a Dispatch 0.11 plugin for [Twitter API][twitterapi].
 
 - [API doc](http://eed3si9n.github.io/repatch-twitter/latest/api/)
 
@@ -9,9 +9,9 @@ setup
 -----
 
 ```scala
-resolvers += "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
+resolvers += Resolver.sonatypeRepo("public")
 
-libraryDependencies += "com.eed3si9n" %% "repatch-twitter-core" % "dispatch0.10.0_0.1.0"
+libraryDependencies += "com.eed3si9n" %% "repatch-twitter-core" % "dispatch0.11.0_0.1.0"
 ```
 
 authentication
