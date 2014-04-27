@@ -5,6 +5,11 @@ repatch-twitter is a Dispatch 0.11 plugin for [Twitter API][twitterapi].
 
 - [API doc](http://eed3si9n.github.io/repatch-twitter/latest/api/)
 
+license
+-------
+
+- [MIT License](http://opensource.org/licenses/MIT)
+
 setup
 -----
 
@@ -357,4 +362,3 @@ res0: Option[String] = Some(We have deprecated HTTP 1.0 support for the Streamin
 ```
 
   [twitterapi]: https://dev.twitter.com/docs/api/1.1
-
