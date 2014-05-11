@@ -1,7 +1,7 @@
 import com.typesafe.sbt.SbtGit.{GitKeys => git}
 
 def baseVersion = "0.1.0"
-def dispatchVersion = "0.11.0"
+def dispatchVersion = "0.11.1"
 def specsVersion = "2.3.11"
 
 lazy val commonSettings: Seq[Def.Setting[_]] = Seq(
