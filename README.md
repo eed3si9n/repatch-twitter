@@ -16,7 +16,8 @@ setup
 ```scala
 resolvers += Resolver.sonatypeRepo("public")
 
-libraryDependencies += "com.eed3si9n" %% "repatch-twitter-core" % "dispatch0.11.0_0.1.0"
+// libraryDependencies += "com.eed3si9n" %% "repatch-twitter-core" % "dispatch0.11.0_0.1.0"
+libraryDependencies += "com.eed3si9n" %% "repatch-twitter-core" % "dispatch0.11.1_0.1.0"
 ```
 
 authentication
